@@ -5,25 +5,44 @@ on:
     branches: [desenvolvimento]
   pull_request:
     branches: [main]
-
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   testes_unitarios:
-    name: "Integração"
+    name: "Testes Unitários"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Instalação de dependências
         run: pip install -r requirements.txt
-      - name: Testes unitários
+      - name: Executar testes
         run: pytest
-  analise_estatica:
-    name: "Bandit"
+  analise_estatica_bandit:
+    name: "Análise Estática (Bandit)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Instalando bandit
+      - name: Instalar Bandit
         run: pip install bandit
-      - name: Análise estática
-        run: bandit -r .
+      - name: Rodar análise de segurança
+        run: bandit -r . -ll
+  analise_dependencias:
+    name: "Análise de Dependências (Safety)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Instalar dependências do projeto
+        run: pip install -r requirements.txt
+      - name: Instalar Safety
+        run: pip install safety
+      - name: Verificar vulnerabilidades
+        run: safety scan
+  analise_estatica_semgrep:
+    name: "Análise Estática (Semgrep)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Instalar Semgrep
+        run: pip install semgrep
+      - name: Rodar análise com regras de segurança
+        run: semgrep --config=auto .
